@@ -1,0 +1,4 @@
+
+{
+    "DevDb": "mongodb://localhost:27017/testMIBDB"    
+}
