@@ -7,7 +7,7 @@
 		"test": "mocha --timeout 10000 --recursive",
 		"test-with-coverage": "nyc  mocha --timeout 10000 --recursive",
 		"nodemontest": "nodemon --exec \"npm test\"",
-		"test-cov": " istanbul cover ./node_modules/mocha/bin/_mocha --timeout 10000 --compilers js:babel-core/register test/*.js"
+		"test-cov": " istanbul cover ./node_modules/mocha/bin/_mocha --timeout 10000"
 	},
 	"babel": {
 		"presets": [
