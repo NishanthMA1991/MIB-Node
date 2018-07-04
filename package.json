@@ -4,7 +4,7 @@
 	"private": true,
 	"scripts": {
 		"start": "node ./bin/www",
-		"test": "mocha --timeout 10000 --recursive",
+		"test": "mocha --timeout 10000 --recursive ***/*.test.js",
 		"test-with-coverage": "nyc  mocha --timeout 10000 --recursive",
 		"nodemontest": "nodemon --exec \"npm test\"",
 		"test-cov": " istanbul cover ./node_modules/mocha/bin/_mocha --timeout 10000 --compilers js:babel-core/register test/*.js"

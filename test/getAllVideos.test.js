@@ -8,7 +8,7 @@ const app = require('../app.js');
 var should = chai.should();
 const expect = require('chai').expect;
 
-chai.use(chaiHttp);
+
 
 describe('API test for MIB get', function () {
     it('should list ALL videos on /videos GET', function (done) {
@@ -30,3 +30,5 @@ describe('API test for MIB get', function () {
             });
     });
 });
+
+chai.use(chaiHttp);
