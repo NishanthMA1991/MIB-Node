@@ -1,18 +1,20 @@
-// process.env.NODE_ENV = 'test'; 
-// console.log("env1 : "+process.env.NODE_ENV);
 var chai = require('chai');
 var chaiHttp = require('chai-http');
 const app = require('../app.js');
+const expect = require('chai').expect;
 var should = chai.should();
 const appRoot = require('app-root-path');
 const userRegisterModel = require(appRoot + '/DataModel/UserDetailsSchema');
 
-chai.use(chaiHttp);
+var user = {
+    email: "nishanth.ma@mindtree.com",
+    fullName: "Nishanth Kumar",
+    password: "1234"
+}
 
-describe('API test for MIB post', function () {
-
+describe('Register user and login', function () {
     before(function (done) {
-        console.log("Before test");
+        console.log("Before test Register");
         userRegisterModel.userAccountDetails.remove({}, (err) => {
             userRegisterModel.userProfile.remove({}, (err) => {
                 done();
@@ -22,16 +24,11 @@ describe('API test for MIB post', function () {
     });
 
     after(function (done) {
-        console.log("After test");
+        console.log("After test Register");
         done();
     });
 
     it('Registering the user', (done) => {
-        let user = {
-            email: "nishanth.ma@mindtree.com",
-            fullName: "Nishanth Kumar",
-            password: "1234"
-        }
         chai.request(app)
             .post('/common/register')
             .set('Content-Type', 'application/json')
@@ -43,20 +40,19 @@ describe('API test for MIB post', function () {
             });
     });
 
-    it('Registering same user once again', (done) => {
-        let user = {
-            email: "nishanth.ma@mindtree.com",
-            fullName: "Nishanth Kumar",
-            password: "1234"
-        }
+    it('should Login with register details', (done)  =>  {
         chai.request(app)
-            .post('/common/register')
+            .post('/common/login')
             .set('Content-Type', 'application/json')
             .send(user)
-            .end((err, res) => {
-                res.should.have.status(405);
-                res.body.should.be.a('object');
+            .end(function (err, res) {
+                expect(res).to.have.status(200);
+                expect(res).to.have.header('x_Token');
+                expect(res).to.be.json;
                 done();
-            });
+                // expect(res.body).toEqual({
+                //     message:  'Inside The routes'
+                // })
+            })
     });
-});
+}); 

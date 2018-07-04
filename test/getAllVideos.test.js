@@ -1,5 +1,5 @@
-process.env.NODE_ENV = 'test'; 
-console.log("env2 : "+process.env.NODE_ENV);
+//process.env.NODE_ENV = 'test'; 
+//console.log("env2 : "+process.env.NODE_ENV);
 // npm run nodemontest
 
 var chai = require('chai');
@@ -7,8 +7,6 @@ var chaiHttp = require('chai-http');
 const app = require('../app.js'); 
 var should = chai.should();
 const expect = require('chai').expect;
-
-
 
 describe('API test for MIB get', function () {
     it('should list ALL videos on /videos GET', function (done) {
