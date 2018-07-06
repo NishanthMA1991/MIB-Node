@@ -53,10 +53,10 @@ app.use(function (err, req, res, next) {
 	res.render('error');
 });
 
-var server = app.listen('3000', '127.0.0.1');
+var server = app.listen('3005', '127.0.0.1');
 server;
 //socket setup
-var  io  = socket(server);
+var io = socket(server);
 
 io.on('connection', function (socket) {
 	console.log('Socket connection completed');
@@ -71,4 +71,7 @@ io.on('connection', function (socket) {
 	});
 });
 
-module.exports = app;
+module.exports  =  {
+	server:  server,
+	app:  app
+}; 

@@ -3,6 +3,7 @@
 var chai = require('chai');
 var chaiHttp = require('chai-http');
 const app = require('../app.js');
+const server = require('../app.js').server;
 var should = chai.should();
 const appRoot = require('app-root-path');
 const userRegisterModel = require(appRoot + '/DataModel/UserDetailsSchema');
@@ -23,6 +24,7 @@ describe('Testing the registering flow', function () {
 
     after(function (done) {
         console.log("After test");
+        server.close();
         done();
     });
 
@@ -32,7 +34,7 @@ describe('Testing the registering flow', function () {
             fullName: "Nishanth Kumar",
             password: "1234"
         }
-        chai.request(app)
+        chai.request(server)
             .post('/common/register')
             .set('Content-Type', 'application/json')
             .send(user)
@@ -49,7 +51,7 @@ describe('Testing the registering flow', function () {
             fullName: "Nishanth Kumar",
             password: "1234"
         }
-        chai.request(app)
+        chai.request(server)
             .post('/common/register')
             .set('Content-Type', 'application/json')
             .send(user)

@@ -1,6 +1,7 @@
 var chai = require('chai');
 var chaiHttp = require('chai-http');
 const app = require('../app.js');
+const server = require('../app.js').server;
 const expect = require('chai').expect;
 var should = chai.should();
 const appRoot = require('app-root-path');
@@ -25,11 +26,12 @@ describe('Register user and login', function () {
 
     after(function (done) {
         console.log("After test Register");
+        server.close();
         done();
     });
 
     it('Registering the user', (done) => {
-        chai.request(app)
+        chai.request(server)
             .post('/common/register')
             .set('Content-Type', 'application/json')
             .send(user)
@@ -41,7 +43,7 @@ describe('Register user and login', function () {
     });
 
     it('should Login with register details', (done)  =>  {
-        chai.request(app)
+        chai.request(server)
             .post('/common/login')
             .set('Content-Type', 'application/json')
             .send(user)
