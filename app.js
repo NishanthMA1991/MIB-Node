@@ -53,7 +53,15 @@ app.use(function (err, req, res, next) {
 	res.render('error');
 });
 
-var server = app.listen('3005', '127.0.0.1');
+const parseArgs = require('minimist') (process.argv.slice(2))
+console.log(parseArgs)
+
+const IP = parseArgs.ip || "127.0.0.1"
+const PORT = parseArgs.port || 3009
+
+console.log("START ", IP, PORT)
+//var server = app.listen(IP, PORT);
+var server = app.listen(3010, "127.0.0.1");
 server;
 //socket setup
 var io = socket(server);
