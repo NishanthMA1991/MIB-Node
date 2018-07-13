@@ -6,16 +6,30 @@ const bcrypt = require('bcrypt-nodejs');
 const jwt = require(`${appRoot}/jwtAuth/jwtAuth.js`);
 var ObjectId = require('mongoose').Types.ObjectId;
 var async = require('async');
-const userRegisterModel =require(appRoot+'/DataModel/UserDetailsSchema');
+const userRegisterModel = require(appRoot + '/DataModel/UserDetailsSchema');
 
 var redis = require('redis');
-var client = redis.createClient(6379, '127.0.0.1');
+// var client = redis.createClient(6379, '127.0.0.1');
 
-var cache = require('express-redis-cache')();  
+var client = redis.createClient(6379, '127.0.0.1', function () {
+    logger.info("Redis Connected Successfully!!!");
+});
+
+client.on('error', function (ex) {
+    logger.info("\n Redis not connected succesfully!!! \n");
+    logger.info(ex);
+});
+
+var cache = require('express-redis-cache')();
+
+client.on('error', function (ex) {
+    logger.info("\n express-redis-cache not connected succesfully!!! \n");
+    logger.info(ex);
+});
 
 // get Videos details
 /* URL : /videos */
-routes.get("/",cache.route('mib:allvideos', 36000) , (req, res) => {
+routes.get("/", cache.route('mib:allvideos',  36000), (req, res) => {
     /*async.parallel({
         videosList:  function  (cb) 
         { 
@@ -81,8 +95,7 @@ routes.get("/",cache.route('mib:allvideos', 36000) , (req, res) => {
     });*/
 
     videoDetails.videoDetailsSchema.find({}, (err, videos) => {
-        if (err)
-        { res.status(500).json({ 'error': 'Internal Server Error!!!' }); }
+        if (err) { res.status(500).json({ 'error': 'Internal Server Error!!!' }); }
         else {
             if (videos) {
                 res.status(200).json({ 'videosList': videos });
@@ -103,7 +116,7 @@ routes.post("/comments", (req, res) => {
     videoComment.ModifiedDate = new Date();
     videoComment.userID = req.body.userID;
     videoComment.comments = req.body.comments;
-    
+
     videoComment.save(function (err, data) {
         if (err) {
             res.status(500).json({ 'error': "Internal server error!!!" });
@@ -127,24 +140,23 @@ routes.post("/likes", (req, res) => {
     videoLikes.userID = req.body.userID;
     videoLikes.likes = req.body.likes;
 
-    videoDetails.videoLikeStatus.find({ $and: [ { videoID: { $eq: VId } }, { userID: { $eq: req.body.userID } } ] }, (err, videos) => {
-        if (err)
-        { res.status(500).json({ 'error': 'Internal Server Error!!!' }); }
+    videoDetails.videoLikeStatus.find({ $and: [{ videoID: { $eq: VId } }, { userID: { $eq: req.body.userID } }] }, (err, videos) => {
+        if (err) { res.status(500).json({ 'error': 'Internal Server Error!!!' }); }
         else {
-            if (videos!="") {
+            if (videos != "") {
                 //update
 
-                var conditions = { $and: [ { videoID: { $eq: VId } }, { userID: { $eq: req.body.userID } } ] } , update = { likes: req.body.likes }
-                , options = { multi: true };
-              
+                var conditions = { $and: [{ videoID: { $eq: VId } }, { userID: { $eq: req.body.userID } }] }, update = { likes: req.body.likes }
+                    , options = { multi: true };
+
                 videoDetails.videoLikeStatus.update(conditions, update, options, callback);
-              
-                function callback (err, numAffected) {
+
+                function callback(err, numAffected) {
                     updateRedisSecondLike(VId);
                     res.status(200).json({ 'message': 'Likes inserted successfully!!!' });
                 }
             }
-            else{
+            else {
                 //insert
 
                 videoLikes.save(function (err, data) {
@@ -152,7 +164,7 @@ routes.post("/likes", (req, res) => {
                         res.status(500).json({ 'error': "Internal server error!!!" });
                     } else {
                         //Cache update
-                        updateRedis(VId,`V_${VId}_Likes`);
+                        updateRedis(VId, `V_${VId}_Likes`);
                         res.status(200).json({ 'message': 'Likes inserted successfully!!!' });
                     }
                 });
@@ -175,30 +187,29 @@ routes.post("/unlikes", (req, res) => {
     videoLikes.userID = req.body.userID;
     videoLikes.likes = req.body.likes;
 
-    videoDetails.videoLikeStatus.find({ $and: [ { videoID: { $eq: VId } }, { userID: { $eq: req.body.userID } } ] }, (err, videos) => {
-        if (err)
-        { res.status(500).json({ 'error': 'Internal Server Error!!!' }); }
+    videoDetails.videoLikeStatus.find({ $and: [{ videoID: { $eq: VId } }, { userID: { $eq: req.body.userID } }] }, (err, videos) => {
+        if (err) { res.status(500).json({ 'error': 'Internal Server Error!!!' }); }
         else {
-            if (videos!="") {
+            if (videos != "") {
                 //update
-                var conditions = { $and: [ { videoID: { $eq: VId } }, { userID: { $eq: req.body.userID } } ] } , update = { likes: req.body.likes }
-                , options = { multi: true };
-              
+                var conditions = { $and: [{ videoID: { $eq: VId } }, { userID: { $eq: req.body.userID } }] }, update = { likes: req.body.likes }
+                    , options = { multi: true };
+
                 videoDetails.videoLikeStatus.update(conditions, update, options, callback);
-              
-                function callback (err, numAffected) {
+
+                function callback(err, numAffected) {
                     updateRedisSecondUnLike(VId);
                     res.status(200).json({ 'message': 'DisLike inserted successfully!!!' });
                 }
             }
-            else{
+            else {
                 //insert
                 videoLikes.save(function (err, data) {
                     if (err) {
                         res.status(500).json({ 'error': "Internal server error!!!" });
                     } else {
                         //Cache update
-                        updateRedis(VId,`V_${VId}_unLikes`);
+                        updateRedis(VId, `V_${VId}_unLikes`);
                         res.status(200).json({ 'message': 'DisLike inserted successfully!!!' });
                     }
                 });
@@ -207,56 +218,59 @@ routes.post("/unlikes", (req, res) => {
     })
 });
 
-function updateRedisSecondUnLike(VId){
-    client.get(`V_${VId}_Likes`, function(error, videoslikes) {
+function updateRedisSecondUnLike(VId) {
+    client.get(`V_${VId}_Likes`, function (error, videoslikes) {
         if (videoslikes) {
             let VLikes = parseInt(videoslikes);
-            VLikes = VLikes-1;
+            VLikes = VLikes - 1;
             client.set(`V_${VId}_Likes`, VLikes, function (error) { });
         }
     })
-
-    client.get(`V_${VId}_unLikes`, function(error, videoslikes) {
+    client.get(key,fun()
+    {
+        
+    })
+    client.get(`V_${VId}_unLikes`, function (error, videoslikes) {
         if (videoslikes) {
             let VLikes = parseInt(videoslikes);
-            VLikes = VLikes+1;
+            VLikes = VLikes + 1;
             client.set(`V_${VId}_unLikes`, VLikes, function (error) { });
         }
-        else{
+        else {
             client.set(`V_${VId}_unLikes`, 1, function (error) { });
         }
     })
 }
 
-function updateRedisSecondLike(VId){
-    client.get(`V_${VId}_Likes`, function(error, videoslikes) {
+function updateRedisSecondLike(VId) {
+    client.get(`V_${VId}_Likes`, function (error, videoslikes) {
         if (videoslikes) {
             let VLikes = parseInt(videoslikes);
-            VLikes = VLikes+1;
+            VLikes = VLikes + 1;
             client.set(`V_${VId}_Likes`, VLikes, function (error) { });
         }
-        else{
+        else {
             client.set(`V_${VId}_Likes`, 1, function (error) { });
         }
     })
 
-    client.get(`V_${VId}_unLikes`, function(error, videoslikes) {
+    client.get(`V_${VId}_unLikes`, function (error, videoslikes) {
         if (videoslikes) {
             let VLikes = parseInt(videoslikes);
-            VLikes = VLikes-1;
+            VLikes = VLikes - 1;
             client.set(`V_${VId}_unLikes`, VLikes, function (error) { });
         }
     })
 }
 
-function updateRedis(VId,reference){
-    client.get(reference, function(error, videoslikes) {
+function updateRedis(VId, reference) {
+    client.get(reference, function (error, videoslikes) {
         if (videoslikes) {
             let VLikes = parseInt(videoslikes);
-            VLikes = VLikes+1;
+            VLikes = VLikes + 1;
             client.set(reference, VLikes, function (error) { });
         }
-        else{
+        else {
             client.set(reference, 1, function (error) { });
         }
     })
@@ -267,38 +281,32 @@ function updateRedis(VId,reference){
 routes.post("/getdetails", (req, res) => {
     var VId = req.body.videoID;
     async.parallel({
-        videosLikes:  function (cb) 
-        { 
+        videosLikes: function (cb) {
             // if(req.body.userID!=null)
             // {
             //     logger.info("Inside videosLikes");
             //     videoDetails.videoLikeStatus.find({ $and: [ { videoID: { $eq: VId } }, { userID: { $eq: req.body.userID } } ] }).exec(cb); 
             // }
-            videoDetails.videoLikeStatus.find({ $and: [ { videoID: { $eq: VId } }, { userID: { $eq: req.body.userID } } ] }).exec(cb);  
+            videoDetails.videoLikeStatus.find({ $and: [{ videoID: { $eq: VId } }, { userID: { $eq: req.body.userID } }] }).exec(cb);
         },
-        redis_Like:  function  (cb) 
-        { 
+        redis_Like: function (cb) {
             client.get(`V_${VId}_Likes`, cb);
         },
-        redis_UnLike:  function  (cb) 
-        { 
+        redis_UnLike: function (cb) {
             client.get(`V_${VId}_unLikes`, cb);
         }
-    },  function (err,  result) {
-        if (err)
-        { res.status(500).json({ 'error': 'Internal Server Error!!!' }); }
+    }, function (err, result) {
+        if (err) { res.status(500).json({ 'error': 'Internal Server Error!!!' }); }
         else {
             let redis_Like = 0;
             let redis_UnLike = 0;
 
-            if(result.redis_Like != null)
-            {   redis_Like = result.redis_Like; }
+            if (result.redis_Like != null) { redis_Like = result.redis_Like; }
 
-            if(result.redis_UnLike != null)
-            {   redis_UnLike = result.redis_UnLike; }
+            if (result.redis_UnLike != null) { redis_UnLike = result.redis_UnLike; }
 
-            var  playerData = {  "videosLikes": result.videosLikes,"redis_Like":redis_Like,"redis_UnLike":redis_UnLike}
-            res.status(200).json({ 'videoData':  playerData });
+            var playerData = { "videosLikes": result.videosLikes, "redis_Like": redis_Like, "redis_UnLike": redis_UnLike }
+            res.status(200).json({ 'videoData': playerData });
         }
     });
 
@@ -337,28 +345,28 @@ routes.post("/getdetails", (req, res) => {
 routes.post("/getcomments", (req, res) => {
     var data = JSON.parse(JSON.stringify(req.body));
     console.log(data);
-    videoDetails.videoComment.find(data, (err,videos) => {
-        let userId = [];
-        var videosComm=[];
-        
-        for (i = 0; i <videos.length; i++) {
-            userId.push(videos[i].userID.replace(/\"/g, ""));
+    videoDetails.videoComment.find(data, (err, videos)  =>  {
+        let  userId  =  [];
+        var videosComm = [];
+
+        for  (i  =  0;  i  < videos.length;  i++) {
+            userId.push(videos[i].userID.replace(/\"/g,  ""));
         }
-        userRegisterModel.userProfile.find({accountID: { $in: userId } }, async (error, userData) => {
-            
+        userRegisterModel.userProfile.find({ accountID:  {  $in:  userId  } }, async (error,  userData)  =>  {
+
             var jsonVariable = {};
-            var fun =  function(){
-                for (var index = 0; index <  userData.length; index++) {
+            var fun = function () {
+                for (var index = 0; index < userData.length; index++) {
                     var id = userData[index].accountID;
                     var name = userData[index].fullName;
-                    jsonVariable[id] = name; 
+                    jsonVariable[id] = name;
                 }
             }
-           
+
             await fun();
-            res.status(200).json({ 'videosComments': { 'comment':videos, 'user':jsonVariable} });
+            res.status(200).json({ 'videosComments': {  'comment': videos,  'user': jsonVariable } });
         });
-    }); 
+    });
 
 
     // videoDetails.videoComment.find(data, async (err, videos) => {

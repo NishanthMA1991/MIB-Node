@@ -3,7 +3,7 @@
 		"uid": "app1",
 		"append": true,
 		"watch": true,
-		"script": "server.js",
+		"script": "app.js",
 		"sourceDir": "D:\\Kalinga\\Final project\\MIB",
 		"args": [
 			"--port",
@@ -16,7 +16,7 @@
 		"uid": "app2",
 		"append": true,
 		"watch": true,
-		"script": "server.js",
+		"script": "app.js",
 		"sourceDir": "D:\\Kalinga\\Final project\\MIB",
 		"args": [
 			"--port",
@@ -29,7 +29,7 @@
 		"uid": "app3",
 		"append": true,
 		"watch": true,
-		"script": "server.js",
+		"script": "app.js",
 		"sourceDir": "D:\\Kalinga\\Final project\\MIB",
 		"args": [
 			"--port",
@@ -42,7 +42,7 @@
 		"uid": "app4",
 		"append": true,
 		"watch": true,
-		"script": "server.js",
+		"script": "app.js",
 		"sourceDir": "D:\\Kalinga\\Final project\\MIB",
 		"args": [
 			"--port",
@@ -55,7 +55,7 @@
 		"uid": "app5",
 		"append": true,
 		"watch": true,
-		"script": "server.js",
+		"script": "app.js",
 		"sourceDir": "D:\\Kalinga\\Final project\\MIB",
 		"args": [
 			"--port",

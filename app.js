@@ -35,7 +35,7 @@ app.use(function (req, res, next) {
 	next(createError(404));
 });
 
-db.db.on('error', console.error.bind(console, 'connection error:'));
+//db.db.on('error', winston.error.bind(console, 'Database connection error:'));
 
 if (config.util.getEnv('NODE_DEV') != 'test') {
 	app.use(morgan('combined', { stream: winston.stream }));
@@ -43,6 +43,7 @@ if (config.util.getEnv('NODE_DEV') != 'test') {
 
 app.use(function (err, req, res, next) {
 	// set locals, only providing error in development
+	console.log("Came here inside error");
 	res.locals.message = err.message;
 	res.locals.error = req.app.get('env') === 'development' ? err : {};
 	//  this line to include winston logging
@@ -57,12 +58,13 @@ const parseArgs = require('minimist') (process.argv.slice(2))
 console.log(parseArgs)
 
 const IP = parseArgs.ip || "127.0.0.1"
-const PORT = parseArgs.port || 3009
+const PORT = parseArgs.port || 3000
 
 console.log("START ", IP, PORT)
-//var server = app.listen(IP, PORT);
-var server = app.listen(3010, "127.0.0.1");
+var server = app.listen(PORT,IP);
+// var server = app.listen(3000, "127.0.0.1");
 server;
+
 //socket setup
 var io = socket(server);
 
