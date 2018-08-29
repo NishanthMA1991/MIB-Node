@@ -58,7 +58,7 @@ const parseArgs = require('minimist') (process.argv.slice(2))
 console.log(parseArgs)
 
 const IP = parseArgs.ip || "127.0.0.1"
-const PORT = parseArgs.port || 3000
+const PORT = parseArgs.port || 3001
 
 console.log("START ", IP, PORT)
 var server = app.listen(PORT,IP);
