@@ -11,28 +11,28 @@ const userRegisterModel =require(appRoot+'/DataModel/UserDetailsSchema');
 var redis = require('redis');
 var client = redis.createClient(6379, '127.0.0.1');
 
-var cache = require('express-redis-cache')();  
+var cache = require('express-redis-cache')();  
 
 // get Videos details
 /* URL : /videos */
-routes.get("/",cache.route('mib:allvideos', 36000) , (req, res) => {
+routes.get("/",cache.route('mib:allvideos', 36000) , (req, res) => {
     /*async.parallel({
-        videosList:  function  (cb) 
+        videosList:  function  (cb) 
         { 
             logger.info("Inside videosList");
             videoDetails.videoDetailsSchema.find({}).exec(cb); 
         },
-        videosLikes:  function (cb) 
+        videosLikes:  function (cb) 
         { 
             logger.info("Inside videosLikes");
             videoDetails.videoLikeStatus.find({}).exec(cb); 
         },
-        videoComment:  function  (cb) 
+        videoComment:  function  (cb) 
         { 
             logger.info("Inside videoComment");
             videoDetails.videoComment.find({}).exec(cb); 
         },
-        redis_Like:  function  (cb) 
+        redis_Like:  function  (cb) 
         { 
             logger.info("Inside redis_Like"); 
             //client.keys(`V_*_Likes`,cb); 
@@ -52,7 +52,7 @@ routes.get("/",cache.route('mib:allvideos', 36000) , (req, res) => {
             });
         }
         ,
-        redis_UnLike:  function  (cb) 
+        redis_UnLike:  function  (cb) 
         { 
             logger.info("Inside redis_Like"); 
             //client.keys(`V_*_Likes`,cb); 
@@ -71,12 +71,12 @@ routes.get("/",cache.route('mib:allvideos', 36000) , (req, res) => {
                 }
             });
         }
-    },  function (err,  result) {
+    },  function (err,  result) {
         if (err)
         { res.status(500).json({ 'error': 'Internal Server Error!!!' }); }
         else {
-            var  playerData = { "videosList": result.videosList, "videosLikes": result.videosLikes, "videoComment": result.videoComment,"redis_Like":result.redis_Like,"redis_UnLike":result.redis_UnLike}
-            res.status(200).json({ 'playerData':  playerData });
+            var  playerData = { "videosList": result.videosList, "videosLikes": result.videosLikes, "videoComment": result.videoComment,"redis_Like":result.redis_Like,"redis_UnLike":result.redis_UnLike}
+            res.status(200).json({ 'playerData':  playerData });
         }
     });*/
 
@@ -267,7 +267,7 @@ function updateRedis(VId,reference){
 routes.post("/getdetails", (req, res) => {
     var VId = req.body.videoID;
     async.parallel({
-        videosLikes:  function (cb) 
+        videosLikes:  function (cb) 
         { 
             // if(req.body.userID!=null)
             // {
@@ -276,15 +276,15 @@ routes.post("/getdetails", (req, res) => {
             // }
             videoDetails.videoLikeStatus.find({ $and: [ { videoID: { $eq: VId } }, { userID: { $eq: req.body.userID } } ] }).exec(cb);  
         },
-        redis_Like:  function  (cb) 
+        redis_Like:  function  (cb) 
         { 
             client.get(`V_${VId}_Likes`, cb);
         },
-        redis_UnLike:  function  (cb) 
+        redis_UnLike:  function  (cb) 
         { 
             client.get(`V_${VId}_unLikes`, cb);
         }
-    },  function (err,  result) {
+    },  function (err,  result) {
         if (err)
         { res.status(500).json({ 'error': 'Internal Server Error!!!' }); }
         else {
@@ -297,8 +297,8 @@ routes.post("/getdetails", (req, res) => {
             if(result.redis_UnLike != null)
             {   redis_UnLike = result.redis_UnLike; }
 
-            var  playerData = {  "videosLikes": result.videosLikes,"redis_Like":redis_Like,"redis_UnLike":redis_UnLike}
-            res.status(200).json({ 'videoData':  playerData });
+            var  playerData = {  "videosLikes": result.videosLikes,"redis_Like":redis_Like,"redis_UnLike":redis_UnLike}
+            res.status(200).json({ 'videoData':  playerData });
         }
     });
 
@@ -337,18 +337,18 @@ routes.post("/getdetails", (req, res) => {
 routes.post("/getcomments", (req, res) => {
     var data = JSON.parse(JSON.stringify(req.body));
     console.log(data);
-    videoDetails.videoComment.find(data, (err,videos) => {
-        let userId = [];
+    videoDetails.videoComment.find(data, (err,videos) => {
+        let userId = [];
         var videosComm=[];
         
-        for (i = 0; i <videos.length; i++) {
-            userId.push(videos[i].userID.replace(/\"/g, ""));
+        for (i = 0; i <videos.length; i++) {
+            userId.push(videos[i].userID.replace(/\"/g, ""));
         }
-        userRegisterModel.userProfile.find({accountID: { $in: userId } }, async (error, userData) => {
+        userRegisterModel.userProfile.find({accountID: { $in: userId } }, async (error, userData) => {
             
             var jsonVariable = {};
             var fun =  function(){
-                for (var index = 0; index <  userData.length; index++) {
+                for (var index = 0; index <  userData.length; index++) {
                     var id = userData[index].accountID;
                     var name = userData[index].fullName;
                     jsonVariable[id] = name; 
@@ -356,7 +356,7 @@ routes.post("/getcomments", (req, res) => {
             }
            
             await fun();
-            res.status(200).json({ 'videosComments': { 'comment':videos, 'user':jsonVariable} });
+            res.status(200).json({ 'videosComments': { 'comment':videos, 'user':jsonVariable} });
         });
     }); 
 

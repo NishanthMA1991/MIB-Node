@@ -1,0 +1,67 @@
+[
+	{
+		"uid": "app1",
+		"append": true,
+		"watch": true,
+		"script": "app.js",
+		"sourceDir": "D:\\Kalinga\\Final project\\MIB",
+		"args": [
+			"--port",
+			"3001",
+			"--ip",
+			"127.0.0.1"
+		]
+	},
+	{
+		"uid": "app2",
+		"append": true,
+		"watch": true,
+		"script": "app.js",
+		"sourceDir": "D:\\Kalinga\\Final project\\MIB",
+		"args": [
+			"--port",
+			"3002",
+			"--ip",
+			"127.0.0.1"
+		]
+	},
+	{
+		"uid": "app3",
+		"append": true,
+		"watch": true,
+		"script": "app.js",
+		"sourceDir": "D:\\Kalinga\\Final project\\MIB",
+		"args": [
+			"--port",
+			"3003",
+			"--ip",
+			"127.0.0.1"
+		]
+	},
+	{
+		"uid": "app4",
+		"append": true,
+		"watch": true,
+		"script": "app.js",
+		"sourceDir": "D:\\Kalinga\\Final project\\MIB",
+		"args": [
+			"--port",
+			"3004",
+			"--ip",
+			"127.0.0.1"
+		]
+	},
+	{
+		"uid": "app5",
+		"append": true,
+		"watch": true,
+		"script": "app.js",
+		"sourceDir": "D:\\Kalinga\\Final project\\MIB",
+		"args": [
+			"--port",
+			"3005",
+			"--ip",
+			"127.0.0.1"
+		]
+	}
+]
